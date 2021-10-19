@@ -1,19 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Observable, take } from 'rxjs';
-// import { http } from '../http-client/http';
-import api from '../http-client/api'
+import { http } from '../http-client/http';
+// import api from '../http-client/api'
 import { GitHubRepo } from '../models/github.model'
-const CircularJSON = require('flatted');
 
 
 @Injectable()
 export class GithubService {
-  fetchGitHubRepos(): Observable<GitHubRepo[]> {
-   let res = api.get<GitHubRepo[]>(`/users/Bogdan-Lishchynskiy/repos`).subscribe({
-      next: value => console.log(value[0]),
-      error: err => console.log(err),
-  })
-      
-    return CircularJSON.stringify(res) as any;
+  async fetchGitHubRepos(): Promise<GitHubRepo[]> {
+    let res = await http.get(`/users/${process.env.GITHUB_USER_NAME}/repos`)
+    console.log('res.data = = =', res.data[0])
+    // console.log('res.headers = = =', res.headers)
+
+    return res.data[0];
   }
 }

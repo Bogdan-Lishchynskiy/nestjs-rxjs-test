@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-// import { Observable } from 'rxjs';
 
 enum StatusCode {
   Unauthorized = 401,
@@ -10,7 +9,6 @@ enum StatusCode {
 const headers: Readonly<Record<string, string>> = {
   Accept: "application/json",
   "Content-Type": "application/json; charset=utf-8",
-//   "Access-Control-Allow-Credentials": true,
   "X-Requested-With": "XMLHttpRequest",
 };
 
@@ -20,10 +18,8 @@ const injectToken = (config: AxiosRequestConfig): AxiosRequestConfig => {
   try {
     // let token = localStorage.getItem("accessToken");
 
-    // if (token != null) {
-     let token = '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'
+     let token = `${process.env.TOKEN}`
       config.headers.Authorization = `Bearer ${token}`;
-    // }
     return config;
   } catch (error) {
     throw new Error(error);
@@ -39,26 +35,22 @@ class Http {
 
   initHttp() {
     const http = axios.create({
-      baseURL: "https://api.github.com", 
+      baseURL: `${process.env.BASE_URL}`, 
       headers,
       withCredentials: true,
     });
-    // console.log('http = = = 1', http)
     http.interceptors.request.use(injectToken, (error) => Promise.reject(error));
 
     http.interceptors.response.use(
       (response) => response,
       (error) => {
         const { response } = error;
-        console.log('response[0] === =', response[0])
-        // console.log('error === =', error)
 
         return this.handleError(response);
       }
     );
 
     this.instance = http;
-    // console.log('http = = = 2', http)
 
     return http;
   }
