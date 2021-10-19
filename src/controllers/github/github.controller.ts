@@ -5,10 +5,10 @@ import { GitHubRepo } from '../../models/github.model';
 
 @Controller('/github')
 export class GithubController {
-    constructor(private readonly gitHubService: GithubService) { }
+  constructor(private readonly gitHubService: GithubService) {}
 
-    @Get()
-    getGitRepoData(): Promise<GitHubRepo[]> {
-        return this.gitHubService.fetchGitHubRepos();
-    }
+  @Get()
+  getGitRepoData(): Promise<GitHubRepo[]> {
+    return this.gitHubService.fetchGitHubRepos();
+  }
 }
