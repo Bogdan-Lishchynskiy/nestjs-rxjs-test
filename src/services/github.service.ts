@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { http } from "../http-client/http";
+import { http } from '../http-client/http';
 // import api from '../http-client/api'
 import { GitHubRepo } from '../models/github.model';
 
