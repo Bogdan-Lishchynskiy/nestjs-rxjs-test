@@ -28,7 +28,10 @@
     }
   },
   "lint-staged": {
-    "*": "prettier --write"
+    "src/**/*.{ts,tsx,js,jsx}": [
+      "npm run lint",
+      "git add"
+    ]
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
