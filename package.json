@@ -24,8 +24,11 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "prettier --write . && git add ."
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*": "prettier --write"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
