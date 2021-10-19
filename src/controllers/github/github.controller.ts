@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
 import { GithubService } from '../../services/github.service';
 import { GitHubRepo } from '../../models/github.model';
 // import { Observable } from 'rxjs';
