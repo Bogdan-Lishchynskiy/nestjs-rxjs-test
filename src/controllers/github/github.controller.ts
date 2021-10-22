@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { GithubService } from '../../services/github.service';
-import { IGitHubRepo, IBranches } from '../../models/github.model';
+import { IGitHubRepo } from '../../models/github.model';
 
 @Controller('/api')
 export class GithubController {
