@@ -7,22 +7,24 @@ describe('Test for GithubService', () => {
   let githubService: GithubService;
   let httpService: HttpService;
   const mockUser = 'Bogdan-Lishchynskiy';
-  const fakeUrl = `https/example/${mockUser}`;
+  const mockRepoName = 'repo-css';
+  const fakeUrlRep = `undefined/users/${mockUser}/repos`;
+  const fakeUrlBr = `undefined/repos/${mockUser}/undefined/branches`;
 
-  const mockData = {
+  const mockDataGithubRepo = {
     data: [
       {
-        repo_name: 'repo-css',
+        name: 'repo-css',
         fork: false,
         owner: { login: 'Bogdan-Lishchynskiy' },
       },
       {
-        repo_name: 'repo-html',
+        name: 'repo-html',
         fork: false,
         owner: { login: 'Bogdan-Lishchynskiy' },
       },
       {
-        repo_name: 'repo-js',
+        name: 'repo-js',
         fork: false,
         owner: { login: 'Bogdan-Lishchynskiy' },
       },
@@ -32,9 +34,26 @@ describe('Test for GithubService', () => {
     headers: {},
     config: {},
   };
+  const mockDataBranches = {
+    data: [
+      {
+        name: 'master',
+        commit: { sha: '57523742631876181d95bc268e09fb3fd1a4d85e' },
+      },
+      {
+        name: 'feature',
+        commit: { sha: '67523742631876181d95bc268e09fb3fd1a4d85c' },
+      },
+    ],
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {},
+  };
   const mockHttpService = {
-    get: jest.fn((fakeUrl) => {
-      return mockData;
+    get: jest.fn((u) => {
+      if (u === fakeUrlRep) return mockDataGithubRepo;
+      else return mockDataBranches;
     }),
   };
   beforeEach(async () => {
@@ -64,20 +83,21 @@ describe('Test for GithubService', () => {
     expect(repos.length).toEqual(3);
     expect(repos[0].fork).toBeFalsy();
     expect(repos).toContainEqual(repos[0]);
-    expect(httpService.get(fakeUrl)).toEqual(mockData);
-    expect(httpService.get).toHaveBeenCalled();
-    expect(httpService.get).toHaveBeenCalledWith(fakeUrl);
+    expect(mockHttpService.get(fakeUrlRep)).toEqual(mockDataGithubRepo);
+    expect(mockHttpService.get).toHaveBeenCalled();
+    expect(mockHttpService.get).toHaveBeenCalledWith(fakeUrlRep);
   });
 
-  it('fetchBranches should return ', async () => {
-    const repos = (await githubService.fetchNotForkedGitHubRepos(
+  it('fetchBranches should return name and commit sha', async () => {
+    const branches = (await githubService.fetchBranches(
       mockUser,
-    )) as IGitHubRepo[];
-    expect(repos.length).toEqual(3);
-    expect(repos[0].fork).toBeFalsy();
-    expect(repos).toContainEqual(repos[0]);
-    expect(httpService.get(fakeUrl)).toEqual(mockData);
-    expect(httpService.get).toHaveBeenCalled();
-    expect(httpService.get).toHaveBeenCalledWith(fakeUrl);
+      mockRepoName,
+    )) as IBranches[];
+    expect(branches.length).toEqual(2);
+    expect(branches[0].name).toEqual('master');
+    expect(branches).toContainEqual(branches[0]);
+    expect(mockHttpService.get(fakeUrlBr)).toEqual(mockDataBranches);
+    expect(mockHttpService.get).toHaveBeenCalled();
+    expect(mockHttpService.get).toHaveBeenCalledWith(fakeUrlBr);
   });
 });

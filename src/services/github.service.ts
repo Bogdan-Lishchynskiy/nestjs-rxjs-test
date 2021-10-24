@@ -25,10 +25,10 @@ export class GithubService {
     let result = await this.httpService.get(
       `${process.env.BASE_URL}/repos/${username}/${repo.repo_name}/branches`,
     );
-    return result.data.map((i) => {
+    return result.data.map((b) => {
       return <IBranches>{
-        name: i.name,
-        commit: i.commit.sha,
+        name: b.name,
+        commit: b.commit.sha,
       };
     });
   }

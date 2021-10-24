@@ -11,6 +11,7 @@ export class GithubController {
     @Param('userName') userName: string,
   ): Promise<IGitHubRepo[]> {
     const repos = await this.gitHubService.fetchNotForkedGitHubRepos(userName);
+
     const promises = [];
     repos.map((repo) => {
       promises.push(
