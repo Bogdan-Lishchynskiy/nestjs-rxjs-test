@@ -1,21 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GithubController } from './github.controller';
+// import { GithubController } from './github.controller';
 // import { HttpService } from '../../services/http.service.ts';
 
 import { GithubService } from '../../services/github.service';
 describe('GithubController', () => {
-  let controller: GithubController;
+  // let controller: GithubController;
+  let githubService: GithubService;
 
+  const mockGithubService = {
+    get: jest.fn(() => {}),
+  };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [GithubController],
+      // controllers: [GithubController],
       providers: [GithubService],
-    }).compile();
+    })
+      .overrideProvider(GithubService)
+      .useValue(mockGithubService)
+      .compile();
 
-    controller = module.get<GithubController>(GithubController);
+    githubService = module.get<GithubService>(GithubService);
+    // controller = module.get<GithubController>(GithubController);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(githubService).toBeDefined();
   });
 });
