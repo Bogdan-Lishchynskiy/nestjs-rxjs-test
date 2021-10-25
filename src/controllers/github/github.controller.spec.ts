@@ -8,7 +8,6 @@ describe('GithubController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [],
       controllers: [GithubController],
       providers: [GithubService],
     }).compile();
@@ -16,7 +15,7 @@ describe('GithubController', () => {
     controller = module.get<GithubController>(GithubController);
   });
 
-  it.skip('should be defined', () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 });
