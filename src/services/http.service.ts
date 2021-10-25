@@ -25,7 +25,7 @@ const injectToken = (config: AxiosRequestConfig): AxiosRequestConfig => {
   }
 };
 
-class Http {
+export class HttpService {
   private instance: AxiosInstance | null = null;
 
   private get http(): AxiosInstance {
@@ -120,4 +120,4 @@ class Http {
   }
 }
 
-export const http = new Http();
+// export const http = new Http();
