@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GithubService } from '../services/github.service';
 import { IBranches, IGitHubRepo } from '../models/github.model';
-import { GitHubHelper } from '../helpers/github-helper';
+// import { GitHubHelper } from '../helpers/github-helper';
 
 describe('GithubController', () => {
   let githubService: GithubService;
-  let gitHubHelper: GitHubHelper;
+  // let gitHubHelper: GitHubHelper;
   const mockUser = 'Bogdan-Lishchynskiy';
   const mockDataGithubRepo = [
     {

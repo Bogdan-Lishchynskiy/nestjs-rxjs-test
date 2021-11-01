@@ -1,29 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { IGitHubRepo } from '../models/github.model';
-import { GithubService } from '../services/github.service';
+// import { Injectable } from '@nestjs/common';
+// import { IGitHubRepo } from '../models/github.model';
+// import { GithubService } from '../services/github.service';
 
-@Injectable()
-export class GitHubHelper {
-  constructor(private readonly gitHubService: GithubService) {}
+// @Injectable()
+// export class GitHubHelper {
+//   constructor(private readonly gitHubService: GithubService) {}
 
-  // public async setBranchesToRepos(
-  //   userName,
-  //   repos: IGitHubRepo[],
-  // ): Promise<IGitHubRepo[]> {
-  //   const promises = [];
-  //   repos.map((repo) => {
-  //     promises.push(
-  //       (async (repo) => {
-  //         let branches = await this.gitHubService.fetchBranches(userName, repo);
-  //         branches.map((i) => {
-  //           repo.branches.push(i);
-  //         });
-  //       })(repo),
-  //     );
-  //   });
+//   public setBranchesToRepos(
+//     userName,
+//     repos: IGitHubRepo[],
+//   ): Observable<IGitHubRepo[]> {
+//     // const promises = [];
+//     repos.map((repo) => {
+//       promises.push(
+//         ((repo) => {
+//           let branches = this.gitHubService.fetchBranches(userName, repo);
+//           branches.map((i) => {
+//             repo.branches.push(i);
+//           });
+//         })(repo),
+//       );
+//     });
 
-  //   await Promise.all(promises);
+//      Promise.all(promises);
 
-  //   return repos;
-  // }
-}
+//     return repos;
+//   }
+
+//   private setBranchesToRepos(
+//     repos: Repository[],
+//     user: User,
+//     headersForGitHub: HeadersForGit,
+//   ): Observable<Repository[]> {
+//     const reposWithBranches = repos.map((repo, repoIdx) =>
+//       this.getBranches(user, repo, headersForGitHub).pipe(
+//         map((branches) => {
+//           repos[repoIdx].branches = branches;
+//           return repos[repoIdx];
+//         }),
+//       ),
+//     );
+//     return forkJoin(reposWithBranches);
+//   }
+
+// }

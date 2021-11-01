@@ -5,11 +5,11 @@ import { AppService } from './services/app.service';
 import { ConfigModule } from '@nestjs/config';
 import { GithubService } from './services/github.service';
 import { HttpService } from './services/http.service';
-import { GitHubHelper } from './helpers/github-helper';
+// import { GitHubHelper } from './helpers/github-helper';
 
 @Module({
   imports: [ConfigModule.forRoot()],
   controllers: [AppController, GithubController],
-  providers: [AppService, GithubService, HttpService, GitHubHelper],
+  providers: [AppService, GithubService, HttpService],
 })
 export class AppModule {}
