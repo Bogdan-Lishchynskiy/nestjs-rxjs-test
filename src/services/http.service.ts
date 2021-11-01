@@ -1,8 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { defer, Observable, from } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 enum StatusCode {
   Unauthorized = 401,
   Forbidden = 403,
+  NotFound = 404,
   TooManyRequests = 429,
   InternalServerError = 500,
 }
@@ -56,40 +59,10 @@ export class HttpService {
     return http;
   }
 
-  request<T = any, R = AxiosResponse<T>>(
-    config: AxiosRequestConfig,
-  ): Promise<R> {
-    return this.http.request(config);
-  }
-
-  get<T = any, R = AxiosResponse<T>>(
-    url: string,
-    config?: AxiosRequestConfig,
-  ): Promise<R> {
-    return this.http.get<T, R>(url, config);
-  }
-
-  post<T = any, R = AxiosResponse<T>>(
-    url: string,
-    data?: T,
-    config?: AxiosRequestConfig,
-  ): Promise<R> {
-    return this.http.post<T, R>(url, data, config);
-  }
-
-  put<T = any, R = AxiosResponse<T>>(
-    url: string,
-    data?: T,
-    config?: AxiosRequestConfig,
-  ): Promise<R> {
-    return this.http.put<T, R>(url, data, config);
-  }
-
-  delete<T = any, R = AxiosResponse<T>>(
-    url: string,
-    config?: AxiosRequestConfig,
-  ): Promise<R> {
-    return this.http.delete<T, R>(url, config);
+  get<T = any>(url: string, config?: object): Observable<T> {
+    return defer(() => this.http.get<T>(url, { params: config })).pipe(
+      map((result) => result.data),
+    );
   }
 
   // Handle global app errors
@@ -98,15 +71,24 @@ export class HttpService {
     const { status } = error;
 
     switch (status) {
+      case StatusCode.NotFound: {
+        console.log(status);
+        // Handle NotFound
+        break;
+      }
       case StatusCode.InternalServerError: {
+        console.log(status);
         // Handle InternalServerError
         break;
       }
+
       case StatusCode.Forbidden: {
+        console.log(status);
         // Handle Forbidden
         break;
       }
       case StatusCode.Unauthorized: {
+        console.log(status);
         // Handle Unauthorized
         break;
       }
@@ -115,9 +97,6 @@ export class HttpService {
         break;
       }
     }
-
     return Promise.reject(error);
   }
 }
-
-// export const http = new Http();

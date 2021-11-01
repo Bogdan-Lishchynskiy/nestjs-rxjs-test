@@ -2,6 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { GithubService } from '../../services/github.service';
 import { IGitHubRepo } from '../../models/github.model';
 import { GitHubHelper } from '../../helpers/github-helper';
+import { Observable } from 'rxjs';
 
 @Controller('/api')
 export class GithubController {
@@ -11,11 +12,12 @@ export class GithubController {
   ) {}
 
   @Get('/not-forked-repositories/:userName')
-  async getGitRepoData(
+  getGitRepoData(
     @Param('userName') userName: string,
-  ): Promise<IGitHubRepo[]> {
-    const repos = await this.gitHubService.fetchNotForkedGitHubRepos(userName);
-    const result = await this.gitHubHelper.setBranchesToRepos(userName, repos);
-    return result;
+  ): Observable<IGitHubRepo[]> {
+    const repos = this.gitHubService.fetchNotForkedGitHubRepos(userName);
+    // const result = await this.gitHubHelper.setBranchesToRepos(userName, repos);
+    console.log('result = = = ', repos);
+    return repos;
   }
 }
