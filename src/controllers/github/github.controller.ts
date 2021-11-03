@@ -14,6 +14,6 @@ export class GithubController {
   getGitRepoData(
     @Param('userName') userName: string,
   ): Observable<IGitHubRepo[]> {
-    return this.gitHubService.getAllRepos(userName);
+    return this.gitHubService.getAllReposWithBranches(userName);
   }
 }

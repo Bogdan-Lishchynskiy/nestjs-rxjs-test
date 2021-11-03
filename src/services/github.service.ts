@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { HttpService } from './http.service';
+import { HttpConsumingService } from './http.service';
 import { IBranches, IGitHubRepo } from '../models/github.model';
 import { forkJoin, mergeMap, Observable, defaultIfEmpty } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable()
 export class GithubService {
-  public constructor(private httpService: HttpService) {}
+  public constructor(private httpService: HttpConsumingService) {}
 
-  getAllRepos(username: string): Observable<IGitHubRepo[]> {
+  getAllReposWithBranches(username: string): Observable<IGitHubRepo[]> {
     return this.fetchNotForkedGitHubRepos(username).pipe(
       mergeMap((repos) => {
         return this.setBranchesToRepos(username, repos);
@@ -23,6 +23,7 @@ export class GithubService {
         map((repos) => repos.filter((r) => r.fork === false)),
         map((repos) =>
           repos.map((i) => {
+            console.log(i);
             return {
               repo_name: i.name,
               owner_login: i.owner.login,
@@ -41,7 +42,6 @@ export class GithubService {
       .pipe(
         map((repos) =>
           repos.map((b) => {
-            console.log(b.name);
             return <IBranches>{
               name: b.name,
               commit: b.commit.sha,
