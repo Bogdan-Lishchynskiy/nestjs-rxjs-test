@@ -32,7 +32,6 @@ export class GithubService {
         ),
         map((repos: IGithubRepository[]) =>
           repos.map((i: IGithubRepository) => {
-            console.log(i);
             return {
               repo_name: i.name,
               owner_login: i.owner.login,

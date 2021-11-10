@@ -1,18 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GithubService } from './github.service';
 import { HttpConsumingService } from '../services/http.service';
-import { IBranches, IGitHubRepo } from '../models/github.model';
-import { Observable } from 'rxjs';
+import { IBranchesResponse, IGitHubRepoResponse } from '../models/github.model';
+import { HttpModule } from '@nestjs/axios';
+import { HttpService } from '@nestjs/axios';
+import { Observable, of } from 'rxjs';
+import { AxiosResponse } from 'axios';
+import DoneCallback = jest.DoneCallback;
 
 describe('Test for GithubService', () => {
   let githubService: GithubService;
-  let httpService: HttpConsumingService;
+  let httpService: HttpService;
+  let httpConsumingService: HttpConsumingService;
   const mockUser = 'Bogdan-Lishchynskiy';
   const mockRepoName = 'repo-css';
-  const fakeUrlRep = `undefined/users/${mockUser}/repos`;
-  const fakeUrlBr = `undefined/repos/${mockUser}/undefined/branches`;
 
-  const mockDataGithubRepo = {
+  const mockDataGithubRepo: AxiosResponse = {
     data: [
       {
         name: 'repo-css',
@@ -35,7 +38,7 @@ describe('Test for GithubService', () => {
     headers: {},
     config: {},
   };
-  const mockDataBranches = {
+  const mockDataBranches: AxiosResponse = {
     data: [
       {
         name: 'master',
@@ -51,22 +54,54 @@ describe('Test for GithubService', () => {
     headers: {},
     config: {},
   };
-  const mockHttpService = {
-    get: jest.fn((u) => {
-      if (u === fakeUrlRep) return mockDataGithubRepo;
-      else return mockDataBranches;
-    }),
-  };
+  // const mockHttpService = {
+  //   // httpClientSpy.get.and.returnValue(of(expectedTarifs));
+  //   get: jest.fn((u) => {
+  //     if (u === fakeUrlRep) return of(mockDataGithubRepo);
+  //     else return of(mockDataBranches);
+  //   }),
+  // };
+
+  const expectedRepo = [
+    {
+      repo_name: 'repo-css',
+      fork: false,
+      owner_login: 'Bogdan-Lishchynskiy',
+      branches: [],
+    },
+    {
+      repo_name: 'repo-html',
+      fork: false,
+      owner_login: 'Bogdan-Lishchynskiy',
+      branches: [],
+    },
+    {
+      repo_name: 'repo-js',
+      fork: false,
+      owner_login: 'Bogdan-Lishchynskiy',
+      branches: [],
+    },
+  ];
+  const expectedBranches = [
+    {
+      name: 'master',
+      sha_commit: '57523742631876181d95bc268e09fb3fd1a4d85e',
+    },
+    {
+      name: 'feature',
+      sha_commit: '67523742631876181d95bc268e09fb3fd1a4d85c',
+    },
+  ];
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [GithubService, HttpConsumingService],
-    })
-      .overrideProvider(HttpConsumingService)
-      .useValue(mockHttpService)
-      .compile();
+      imports: [HttpModule],
+    }).compile();
 
     githubService = module.get<GithubService>(GithubService);
-    httpService = module.get<HttpConsumingService>(HttpConsumingService);
+    httpService = module.get<HttpService>(HttpService);
+    httpConsumingService =
+      module.get<HttpConsumingService>(HttpConsumingService);
   });
 
   it('should be defined', () => {
@@ -77,27 +112,51 @@ describe('Test for GithubService', () => {
     expect(httpService).toBeDefined();
   });
 
-  it.only('fetchNotForkedGitHubRepos should return not forked repositories', async () => {
+  it('fetchNotForkedGitHubRepos should return not forked repositories', (done: DoneCallback) => {
+    jest.spyOn(httpService, 'get').mockReturnValueOnce(of(mockDataGithubRepo));
+
     const repos = githubService.fetchNotForkedGitHubRepos(mockUser);
-    // as Observable<IGitHubRepo[]>;
-    // expect(repos.length).toEqual(3);
-    expect(repos[0].fork).toBeFalsy();
-    expect(repos).toContainEqual(repos[0]);
-    expect(mockHttpService.get(fakeUrlRep)).toEqual(mockDataGithubRepo);
-    expect(mockHttpService.get).toHaveBeenCalled();
-    expect(mockHttpService.get).toHaveBeenCalledWith(fakeUrlRep);
+    repos.subscribe({
+      next: (response: IGitHubRepoResponse[]) => {
+        expect(response).toEqual(expectedRepo);
+        expect(response.length).toEqual(3);
+        expect(response[0].repo_name).toEqual('repo-css');
+        expect(response).toContainEqual(response[0]);
+        done();
+      },
+      error: (error: Error) => done.fail(error),
+    });
   });
 
-  it.only('fetchBranches should return name and commit sha', async () => {
-    const branches = (await githubService.fetchBranches(
-      mockUser,
-      mockRepoName,
-    )) as Observable<IBranches[]>;
-    // expect(branches.length).toEqual(2);
-    expect(branches[0].name).toEqual('master');
-    expect(branches).toContainEqual(branches[0]);
-    expect(mockHttpService.get(fakeUrlBr)).toEqual(mockDataBranches);
-    expect(mockHttpService.get).toHaveBeenCalled();
-    expect(mockHttpService.get).toHaveBeenCalledWith(fakeUrlBr);
+  it('fetchBranches should return name and commit sha', (done: DoneCallback) => {
+    jest.spyOn(httpService, 'get').mockReturnValueOnce(of(mockDataBranches));
+    const branches = githubService.fetchBranches(mockUser, mockRepoName);
+
+    branches.subscribe({
+      next: (response: IBranchesResponse[]) => {
+        expect(response).toEqual(expectedBranches);
+        expect(response.length).toEqual(2);
+        expect(response[0].name).toEqual('master');
+        expect(response).toContainEqual(response[0]);
+        done();
+      },
+      error: (error: Error) => done.fail(error),
+    });
+  });
+
+  it('setBranchesToRepos should return repo with branches', (done: DoneCallback) => {
+    jest.spyOn(httpService, 'get').mockReturnValueOnce(of(mockDataGithubRepo));
+
+    const repos = githubService.fetchNotForkedGitHubRepos(mockUser);
+    repos.subscribe({
+      next: (response: IGitHubRepoResponse[]) => {
+        expect(response).toEqual(expectedRepo);
+        expect(response.length).toEqual(3);
+        expect(response[0].repo_name).toEqual('repo-css');
+        expect(response).toContainEqual(response[0]);
+        done();
+      },
+      error: (error: Error) => done.fail(error),
+    });
   });
 });
