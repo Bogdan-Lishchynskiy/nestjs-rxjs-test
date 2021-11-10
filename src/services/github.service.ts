@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { HttpConsumingService } from './http.service';
-import { IBranches, IGitHubRepo } from '../models/github.model';
+import {
+  IBranchesResponse,
+  IBranch,
+  IGitHubRepoResponse,
+  IGithubRepository,
+} from '../models/github.model';
 import { forkJoin, mergeMap, Observable, defaultIfEmpty } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -8,7 +13,7 @@ import { map } from 'rxjs/operators';
 export class GithubService {
   public constructor(private httpService: HttpConsumingService) {}
 
-  getAllReposWithBranches(username: string): Observable<IGitHubRepo[]> {
+  getAllReposWithBranches(username: string): Observable<IGitHubRepoResponse[]> {
     return this.fetchNotForkedGitHubRepos(username).pipe(
       mergeMap((repos) => {
         return this.setBranchesToRepos(username, repos);
@@ -16,13 +21,17 @@ export class GithubService {
     );
   }
 
-  fetchNotForkedGitHubRepos(username): Observable<IGitHubRepo[]> {
+  fetchNotForkedGitHubRepos(username): Observable<IGitHubRepoResponse[]> {
     return this.httpService
-      .get(`${process.env.BASE_URL}/users/${username}/repos`)
+      .get<IGithubRepository[]>(
+        `${process.env.BASE_URL}/users/${username}/repos`,
+      )
       .pipe(
-        map((repos) => repos.filter((r) => r.fork === false)),
-        map((repos) =>
-          repos.map((i) => {
+        map((repos: IGithubRepository[]) =>
+          repos.filter((r: IGithubRepository) => r.fork === false),
+        ),
+        map((repos: IGithubRepository[]) =>
+          repos.map((i: IGithubRepository) => {
             console.log(i);
             return {
               repo_name: i.name,
@@ -34,17 +43,17 @@ export class GithubService {
         ),
       );
   }
-  fetchBranches(username, repo): Observable<IBranches[]> {
+  fetchBranches(username, repo): Observable<IBranchesResponse[]> {
     return this.httpService
-      .get(
+      .get<IBranch[]>(
         `${process.env.BASE_URL}/repos/${username}/${repo.repo_name}/branches`,
       )
       .pipe(
-        map((repos) =>
-          repos.map((b) => {
-            return <IBranches>{
+        map((br: IBranch[]) =>
+          br.map((b: IBranch) => {
+            return {
               name: b.name,
-              commit: b.commit.sha,
+              sha_commit: b.commit.sha,
             };
           }),
         ),
@@ -53,8 +62,8 @@ export class GithubService {
 
   setBranchesToRepos(
     userName,
-    repos: IGitHubRepo[],
-  ): Observable<IGitHubRepo[]> {
+    repos: IGitHubRepoResponse[],
+  ): Observable<IGitHubRepoResponse[]> {
     const reposWithBranches = repos.map((repo, i) =>
       this.fetchBranches(userName, repo).pipe(
         map((branches) => {
