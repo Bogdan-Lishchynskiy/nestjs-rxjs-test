@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { HttpConsumingService } from './http.service';
 import {
   IBranchesResponse,
@@ -12,6 +12,7 @@ import {
   concatMap,
   Observable,
   defaultIfEmpty,
+  catchError,
 } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -25,6 +26,15 @@ export class GithubService {
         `${process.env.BASE_URL}/users/${username}/repos`,
       )
       .pipe(
+        catchError((err) => {
+          if (err.response && err.response.status === HttpStatus.NOT_FOUND) {
+            throw new NotFoundException({
+              status: HttpStatus.NOT_FOUND,
+              message: 'GitHub user not found',
+            });
+          }
+          throw err;
+        }),
         map((repos: IGithubRepository[]) =>
           repos.filter((r: IGithubRepository) => {
             return r.fork === false;
