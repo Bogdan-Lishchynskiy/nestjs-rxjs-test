@@ -11,6 +11,7 @@ export class GithubController {
   getGitRepoData(
     @Param('userName') userName: string,
   ): Observable<IGitHubRepoResponse[]> {
-    return this.gitHubService.getAllReposWithBranches(userName);
+    console.log('insode ctrl = = = =');
+    return this.gitHubService.fetchNotForkedGitHubRepos(userName);
   }
 }

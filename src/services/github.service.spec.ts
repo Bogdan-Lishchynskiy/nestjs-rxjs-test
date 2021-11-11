@@ -4,7 +4,7 @@ import { HttpConsumingService } from '../services/http.service';
 import { IBranchesResponse, IGitHubRepoResponse } from '../models/github.model';
 import { HttpModule } from '@nestjs/axios';
 import { HttpService } from '@nestjs/axios';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import DoneCallback = jest.DoneCallback;
 
@@ -54,34 +54,7 @@ describe('Test for GithubService', () => {
     headers: {},
     config: {},
   };
-  // const mockHttpService = {
-  //   // httpClientSpy.get.and.returnValue(of(expectedTarifs));
-  //   get: jest.fn((u) => {
-  //     if (u === fakeUrlRep) return of(mockDataGithubRepo);
-  //     else return of(mockDataBranches);
-  //   }),
-  // };
 
-  const expectedRepo = [
-    {
-      repo_name: 'repo-css',
-      fork: false,
-      owner_login: 'Bogdan-Lishchynskiy',
-      branches: [],
-    },
-    {
-      repo_name: 'repo-html',
-      fork: false,
-      owner_login: 'Bogdan-Lishchynskiy',
-      branches: [],
-    },
-    {
-      repo_name: 'repo-js',
-      fork: false,
-      owner_login: 'Bogdan-Lishchynskiy',
-      branches: [],
-    },
-  ];
   const expectedBranches = [
     {
       name: 'master',
@@ -90,6 +63,54 @@ describe('Test for GithubService', () => {
     {
       name: 'feature',
       sha_commit: '67523742631876181d95bc268e09fb3fd1a4d85c',
+    },
+  ];
+
+  const expectedRepoWithBranches = [
+    {
+      repo_name: 'repo-css',
+      owner_login: 'Bogdan-Lishchynskiy',
+      fork: false,
+      branches: [
+        {
+          name: 'master',
+          sha_commit: '57523742631876181d95bc268e09fb3fd1a4d85e',
+        },
+        {
+          name: 'feature',
+          sha_commit: '67523742631876181d95bc268e09fb3fd1a4d85c',
+        },
+      ],
+    },
+    {
+      repo_name: 'repo-html',
+      owner_login: 'Bogdan-Lishchynskiy',
+      fork: false,
+      branches: [
+        {
+          name: 'master',
+          sha_commit: '57523742631876181d95bc268e09fb3fd1a4d85e',
+        },
+        {
+          name: 'feature',
+          sha_commit: '67523742631876181d95bc268e09fb3fd1a4d85c',
+        },
+      ],
+    },
+    {
+      repo_name: 'repo-js',
+      owner_login: 'Bogdan-Lishchynskiy',
+      fork: false,
+      branches: [
+        {
+          name: 'master',
+          sha_commit: '57523742631876181d95bc268e09fb3fd1a4d85e',
+        },
+        {
+          name: 'feature',
+          sha_commit: '67523742631876181d95bc268e09fb3fd1a4d85c',
+        },
+      ],
     },
   ];
   beforeEach(async () => {
@@ -114,11 +135,12 @@ describe('Test for GithubService', () => {
 
   it('fetchNotForkedGitHubRepos should return not forked repositories', (done: DoneCallback) => {
     jest.spyOn(httpService, 'get').mockReturnValueOnce(of(mockDataGithubRepo));
+    jest.spyOn(httpService, 'get').mockReturnValue(of(mockDataBranches));
 
     const repos = githubService.fetchNotForkedGitHubRepos(mockUser);
     repos.subscribe({
       next: (response: IGitHubRepoResponse[]) => {
-        expect(response).toEqual(expectedRepo);
+        expect(response).toEqual(expectedRepoWithBranches);
         expect(response.length).toEqual(3);
         expect(response[0].repo_name).toEqual('repo-css');
         expect(response).toContainEqual(response[0]);
@@ -137,23 +159,9 @@ describe('Test for GithubService', () => {
         expect(response).toEqual(expectedBranches);
         expect(response.length).toEqual(2);
         expect(response[0].name).toEqual('master');
+        expect(response[0]).toEqual(expectedBranches[0]);
         expect(response).toContainEqual(response[0]);
-        done();
-      },
-      error: (error: Error) => done.fail(error),
-    });
-  });
 
-  it('setBranchesToRepos should return repo with branches', (done: DoneCallback) => {
-    jest.spyOn(httpService, 'get').mockReturnValueOnce(of(mockDataGithubRepo));
-
-    const repos = githubService.fetchNotForkedGitHubRepos(mockUser);
-    repos.subscribe({
-      next: (response: IGitHubRepoResponse[]) => {
-        expect(response).toEqual(expectedRepo);
-        expect(response.length).toEqual(3);
-        expect(response[0].repo_name).toEqual('repo-css');
-        expect(response).toContainEqual(response[0]);
         done();
       },
       error: (error: Error) => done.fail(error),

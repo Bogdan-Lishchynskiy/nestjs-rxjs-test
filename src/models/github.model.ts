@@ -23,4 +23,5 @@ export interface IGithubRepository {
   owner: {
     login: string;
   };
+  branches?: IBranchesResponse[];
 }
